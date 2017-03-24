@@ -26,15 +26,19 @@ node {
             rc = sh returnStatus: true, script: "${toolbelt}/sfdx _ force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile C:\'\\'Anbu\'\\'Innovation\'\\'SalesforceDX\'\\'Pilot\'\\'server.key  --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
             
             if (rc != 0) { error 'hub org authorization failed' }
+        }
 
-             rmsg = sh returnStdout: true, script: "${toolbelt}/sfdx _ force:org:create --definitionfile config/workspace-scratch-def.json --json --setdefaultusername"
-            printf rmsg
-            def jsonSlurper = new JsonSlurperClassic()
-            def robj = jsonSlurper.parseText(rmsg)
-            if (robj.status != "ok") { error 'org creation failed: ' + robj.message }
-            SFDC_USERNAME=robj.username
-            robj = null
-
+        stage('Push To Test Org') {
+        Print "In Push to Test Org"
+            rc = sh returnStatus: true, script: "${toolbelt}/sfdx _ force:source:push --targetusername scratchorg1490349215952@anbu.com"
+            if (rc != 0) {
+                error 'push failed'
+            }
+            // assign permset
+            rc = sh returnStatus: true, script: "${toolbelt}/sfdx _ force:user:permset:assign --targetusername scratchorg1490349215952@anbu.com --permsetname DreamHouse"
+            if (rc != 0) {
+                error 'permset:assign failed'
+            }
         }
 
         }
