@@ -29,7 +29,7 @@ node {
         }
 
         stage('Push To Test Org') {
-        Print "In Push to Test Org"
+        echo "In Push to Test Org"
             rc = sh returnStatus: true, script: "${toolbelt}/sfdx _ force:source:push --targetusername scratchorg1490349215952@anbu.com"
             if (rc != 0) {
                 error 'push failed'
