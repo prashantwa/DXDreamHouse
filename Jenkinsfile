@@ -24,9 +24,17 @@ echo "in Create Scratch org"
 
 
             rc = sh returnStatus: true, script: "${toolbelt}/sfdx _ force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile C:\'\\'Anbu\'\\'Innovation\'\\'SalesforceDX\'\\'Pilot\'\\'server.key  --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
-            echo $rc
+            
             
             if (rc != 0) { error 'hub org authorization failed' }
+
+            rmsg = sh returnStdout: true, script: "${toolbelt}/sfdx _ force:org:create --definitionfile config/workspace-scratch-def.json --json --setdefaultusername"
+            printf rmsg
+            def jsonSlurper = new JsonSlurperClassic()
+            def robj = jsonSlurper.parseText(rmsg)
+            if (robj.status != "ok") { error 'org creation failed: ' + robj.message }
+            SFDC_USERNAME=robj.username
+            robj = null
         }
 
         
